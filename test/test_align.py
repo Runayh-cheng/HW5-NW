@@ -1,6 +1,6 @@
 # Importing Dependencies
 import pytest
-from align import NeedlemanWunsch, read_fasta
+from align.align import NeedlemanWunsch, read_fasta
 import numpy as np
 
 def test_nw_alignment():
