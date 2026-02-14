@@ -17,7 +17,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install . 
+          pip install pytest numpy
       - name: Test with pytest
         run: |
           python -m pytest -vv test/*py
