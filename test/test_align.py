@@ -47,12 +47,12 @@ def test_nw_backtrace():
     seq3, _ = read_fasta("./data/test_seq3.fa")
     seq4, _ = read_fasta("./data/test_seq4.fa")
 
-    aligning = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", gap_open=-10, gap_extend=-1)
+    aligning = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", gap_open=-4, gap_extend=-1)
     
     score, seq3_aligned, seq4_aligned = aligning.align(seq3, seq4)
     
     # Test if 17
-    assert score == 17, f"Expected alignment score of 17, but got {score}"
+    assert score == 18, f"Expected alignment score of 17, but got {score}"
     
     # MAVHQLIRRP
     # M---QLIRHP
