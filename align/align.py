@@ -129,50 +129,54 @@ class NeedlemanWunsch:
         # TODO: Initialize matrix private attributes for use in alignment
         # create matrices for alignment scores, gaps, and backtracing
 
-        #One more row/col needed 
-        num_rows = len(seqA)+1
-        num_cols = len(seqB)+1
+        # One more row/col needed 
+        num_rows = len(seqA) + 1
+        num_cols = len(seqB) + 1
+        
+        # Create matrices
         self._align_matrix = np.zeros((num_rows, num_cols), dtype=float)
-        #same size but for tracing
-        self._back = np.zeros((num_rows, num_cols))
+        self._back = np.zeros((num_rows, num_cols), dtype=int)
 
+        # Initialize first column (gaps in seqB)
         for i in range(1, num_rows):
             self._align_matrix[i, 0] = i * self.gap_open
-            self._back[i, 0] = 1 # cell above so move down 
+            self._back[i, 0] = 1
         
+        # Initialize first row (gaps in seqA)
         for j in range(1, num_cols):
-            # score = num of gapxgap_penalty
             self._align_matrix[0, j] = j * self.gap_open
-            self._back[0, j] = 2 
+            self._back[0, j] = 2
 
         
         # TODO: Implement global alignment here
 
-        #for each row 
+        # Fill in the rest of the matrix
         for i in range(1, num_rows):
             for j in range(1, num_cols):
-                char_from_seqA = seqA[i-1]
-                char_from_seqB = seqB[j-1]
-                match_mismatch_score = self.sub_dict[(char_from_seqA, char_from_seqB)]
-                score_from_diagonal = self._align_matrix[i-1, j-1] + match_mismatch_score
-                #gap in B
-                score_from_above = self._align_matrix[i-1, j] + self.gap_open
-                #gap in A
-                score_from_left = self._align_matrix[i, j-1] + self.gap_open
-
-                if score_from_diagonal >= score_from_above and score_from_diagonal >= score_from_left:
-                    self._align_matrix[i, j] = score_from_diagonal
-                    self._back[i, j] = 0  
+                # Get characters
+                char_A = seqA[i-1]
+                char_B = seqB[j-1]
                 
-                elif score_from_above >= score_from_left:
-                    self._align_matrix[i, j] = score_from_above
-                    self._back[i, j] = 1 
+                # Get substitution score
+                sub_score = self.sub_dict[(char_A, char_B)]
                 
+                # Calculate three possible scores
+                score_diagonal = self._align_matrix[i-1, j-1] + sub_score
+                score_up = self._align_matrix[i-1, j] + self.gap_open
+                score_left = self._align_matrix[i, j-1] + self.gap_open
+                
+                # Pick the maximum
+                if score_diagonal >= score_up and score_diagonal >= score_left:
+                    self._align_matrix[i, j] = score_diagonal
+                    self._back[i, j] = 0
+                elif score_up >= score_left:
+                    self._align_matrix[i, j] = score_up
+                    self._back[i, j] = 1
                 else:
-                    #gap in seqA
-                    self._align_matrix[i, j] = score_from_left
-                    self._back[i, j] = 2 
+                    self._align_matrix[i, j] = score_left
+                    self._back[i, j] = 2
         
+        # Save final score
         self.alignment_score = self._align_matrix[num_rows-1, num_cols-1]
         		    
         return self._backtrace()
@@ -191,39 +195,36 @@ class NeedlemanWunsch:
          	(alignment score, seqA alignment, seqB alignment) : Tuple[float, str, str]
          		the score and corresponding strings for the alignment of seqA and seqB
         """
-        #bottom right start 
+        # Start at bottom-right
         row = len(self._seqA)
         col = len(self._seqB)
 
         aligned_seqA = []
         aligned_seqB = []
 
+        # Trace back to top-left
         while row > 0 or col > 0:
-            #go up until to top left 
             direction = self._back[row, col]
-            #diagnol = 2 char
-            if direction == 0:
+            
+            if direction == 0:  # diagonal
                 aligned_seqA.append(self._seqA[row-1])
                 aligned_seqB.append(self._seqB[col-1])
-               # move diagonally up-left
-                row = row - 1
-                col = col - 1
-            #above to down = gao in B 
-            elif direction == 1:
+                row -= 1
+                col -= 1
+            elif direction == 1:  # up (gap in seqB)
                 aligned_seqA.append(self._seqA[row-1])
                 aligned_seqB.append('-')
-                #move up 
-                row = row - 1
-            #leftward = gap in A
-            elif direction == 2:
+                row -= 1
+            elif direction == 2:  # left (gap in seqA)
                 aligned_seqA.append('-')
                 aligned_seqB.append(self._seqB[col-1])
-                col = col - 1
+                col -= 1
         
-        #started building from back need to reverse
+        # Reverse (built backwards)
         aligned_seqA.reverse()
         aligned_seqB.reverse()
 
+        # Join to strings
         self.seqA_align = ''.join(aligned_seqA)
         self.seqB_align = ''.join(aligned_seqB)
 
