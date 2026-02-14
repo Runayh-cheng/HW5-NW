@@ -132,7 +132,7 @@ class NeedlemanWunsch:
         #One more row/col needed 
         num_rows = len(seqA)+1
         num_cols = len(seqB)+1
-        self._align_matrix = np.zeros((num_rows, num_cols))
+        self._align_matrix = np.zeros((num_rows, num_cols), dtype=float)
         #same size but for tracing
         self._back = np.zeros((num_rows, num_cols))
 
