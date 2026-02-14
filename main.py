@@ -16,7 +16,7 @@ def main():
     # TODO Align all species to humans and print species in order of most similar to human BRD
     # using gap opening penalty of -10 and a gap extension penalty of -1 and BLOSUM62 matrix
     
-    alignpls = NeedlemanWunsch("./data/BLOSUM62.txt", gap_open=-10, gap_extend=-1)
+    alignpls = NeedlemanWunsch(".substitution_matrices/BLOSUM62.txt", gap_open=-10, gap_extend=-1)
     
     # animal vs human
     gg_score, gg_align, hs_align_gg = alignpls.align(hs_seq, gg_seq)
